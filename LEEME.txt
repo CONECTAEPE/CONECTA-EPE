@@ -1,0 +1,48 @@
+EMPRENDE | CONECTA EPE - EPE VIRGINIA DE ANDRADE (TAMACA)
+
+Los datos NO están dentro de la página: viven en el servidor (función de Netlify + Netlify Blobs, o server.mjs en tu
+propio hosting) y cada acción se valida por rol. Arrastrar y soltar (Netlify Drop) NO activa funciones.
+
+=== A) DESPLEGAR EN NETLIFY ===
+  npm install -g netlify-cli
+  netlify login
+  netlify link        (elige tu sitio)   o   netlify init
+  netlify deploy --prod
+  (o sube esta carpeta a Git y conéctala al sitio; Netlify usa netlify.toml)
+
+=== B) DESPLEGAR EN TU PROPIO DOMINIO Y HOSTING (Node 20 o superior) ===
+  1. Copia esta carpeta al servidor y ejecuta:   npm start     (equivale a: node server.mjs)
+  2. Variables de entorno opcionales:
+       PORT=8080              puerto
+       DATA_DIR=/ruta/datos   carpeta persistente donde se guardan TODOS los datos (haz copias de seguridad de ella)
+       PASSWORD_PEPPER=...    "pimienta" secreta extra para las claves (guárdala; debe ser la misma si migras de nuevo)
+  3. Pon un proxy con HTTPS delante (Nginx, Caddy, Apache o el panel de tu hosting) apuntando al puerto.
+     Usa siempre HTTPS: las claves viajan solo por conexión cifrada.
+
+=== MIGRAR TODO DEL SISTEMA VIEJO AL NUEVO ===
+  Opción 1 (en línea, recomendada): entra al sistema NUEVO como administrador >
+     Configuración > "Migración a otro dominio o hosting" > escribe la dirección del sistema anterior,
+     el correo y la clave del administrador anterior > "Traer todos los datos".
+  Opción 2 (por archivo): en el sistema anterior "Descargar migración completa"; en el nuevo, elige ese archivo.
+  Se migran: formaciones, participantes, usuarios y claves (como hash), planificación y pensum, asistencia y bajas,
+  solicitudes pendientes, fotos, archivos adjuntos e historial. Los usuarios conservan su clave.
+  Si usas PASSWORD_PEPPER en el sistema nuevo, el sistema anterior debe haber usado el mismo valor.
+  Después de migrar apunta tu dominio al sitio nuevo y verifica con un usuario de prueba.
+
+=== PRIMER USO ===
+  1. Administrador: pabloemiliorico24@gmail.com / Admin1234  (cámbiala en "Mi perfil").
+     El primer ingreso carga los 332 registros del PDF.
+  2. Usuarios: crea Plantel / Director / Docente, o "Generar accesos de participantes" (usuario = cédula, clave inicial Epe.2026;
+     cada uno DEBE cambiarla en su primer ingreso).
+  3. Los participantes pueden crear su cuenta desde el login; el administrador, plantel o director la aprueban en "Solicitudes".
+     Una cédula ya registrada no puede volver a registrarse.
+  4. Docente: "Planificación" (módulos y archivos, enviar a aprobación) y "Asistencia".
+     Plantel, Director y Administrador aprueban o devuelven el pensum. 3 inasistencias eliminan al participante de la formación;
+     el reintegro (docente, plantel, director o administrador) reinicia el conteo.
+  5. Datos: Excel/PDF, sincronización con Google Sheets (hoja compartida como "Cualquier persona con el enlace") y descargas.
+
+=== SEGURIDAD ===
+  - Claves: scrypt (N=65536, r=8, p=2) con sal única por usuario; nunca en texto. Pimienta opcional (PASSWORD_PEPPER).
+  - Política: mínimo 8 caracteres con letras y números. Bloqueo temporal tras intentos fallidos. La sesión se invalida al cambiar la clave.
+  - Cabeceras de seguridad (HSTS, CSP, anti-clickjacking) en netlify.toml y server.mjs.
+  - Versiones anteriores (datos cifrados dentro de la página) NO son compatibles: los usuarios deben volver a crearse.

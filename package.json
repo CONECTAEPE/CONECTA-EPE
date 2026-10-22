@@ -1,0 +1,13 @@
+{
+  "name": "conecta-epe-vercel",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "build": "node --check api/epe.mjs && node --check api/storage.mjs && node --check netlify/functions/core.mjs"
+  },
+  "dependencies": {},
+  "engines": {
+    "node": "22.x"
+  }
+}
